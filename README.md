@@ -88,3 +88,8 @@ sche-dulo-matic/
 - The office can't hand-edit the timetable; add drag-and-drop editing and swap requests between two teachers
 - SQLite is fine for one college; move to PostgreSQL/MySQL for many concurrent users
 - Greedy scheduling isn't provably optimal (a constraint solver such as OR-Tools would be)
+
+## Author
+
+**Maheshree Katla**
+B.E. Computer Engineering | Aspiring Python / AI-ML Developer
