@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "_macros.html" import timetable_grid, badge, slot with context %}
+{% block title %}My timetable{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Teacher</p>
+    <h1>{{ greeting }}, {{ g.user['name'] }}</h1>
+    <p>{% if meta %}Timetable v{{ meta.version }}, published {{ meta.published_at[:10] }}.{% else %}Your timetable will appear here once the college publishes it.{% endif %}</p>
+  </div>
+  {% if meta %}
+  <div class="stats">
+    <div class="stat"><b>{{ lectures }}</b><span>lectures / week</span></div>
+    <div class="stat"><b>{{ periods }}</b><span>periods / week</span></div>
+    <div class="stat"><b>{{ classes|length }}</b><span>{{ 'class' if classes|length == 1 else 'classes' }}</span></div>
+    <div class="stat"><b>{{ pending }}</b><span>pending request{{ '' if pending == 1 else 's' }}</span></div>
+  </div>
+  {% endif %}
+</section>
+
+{% if not meta %}
+  <div class="card empty-state"><h3>No timetable yet</h3><p>The college hasn't published a timetable. Check back soon.</p></div>
+{% else %}
+<div class="cols">
+  <section class="card">
+    <div class="card-head"><h2>Today · {{ today }}</h2></div>
+    {% if today_sessions %}
+      <ul class="list">
+      {% for s in today_sessions %}
+        <li><div><strong>{{ s.subject }}</strong><div class="muted small-text">{{ s.division }} · Room {{ s.room }}</div></div>
+            <span class="time-chip">Slot {{ s.start_slot }}{% if s.duration > 1 %}–{{ s.start_slot + s.duration - 1 }}{% endif %}</span></li>
+      {% endfor %}
+      </ul>
+    {% else %}<p class="muted">No lectures today. Enjoy the free time.</p>{% endif %}
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Recent requests</h2><a href="{{ url_for('teacher.requests_list') }}" class="small-text">View all</a></div>
+    {% if recent %}
+      <ul class="list">
+      {% for r in recent %}
+        <li><div><strong>{{ r['subject'] }}</strong> <span class="muted small-text">{{ r['division'] }}</span>
+            {% if r['admin_note'] %}<div class="muted small-text">“{{ r['admin_note'] }}”</div>{% endif %}</div>
+            {{ badge(r['status']) }}</li>
+      {% endfor %}
+      </ul>
+    {% else %}<p class="muted">You haven't asked for any changes. Use “Request change” on a lecture below.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head"><h2>My weekly timetable</h2>
+    <span class="muted small-text">Need a different time? Choose “Request change” on a lecture. The college office decides.</span></div>
+  {{ timetable_grid(grid, second='division', mine=teacher, links=True) }}
+</section>
+
+<h2 style="margin:1.6rem 0 .8rem">My classes</h2>
+{% if classes %}
+<div class="class-cards">
+  {% for c in classes %}
+  <div class="class-card">
+    <h3>{{ c.division }} <span class="badge info">{{ c.sessions }}/week</span></h3>
+    <ul>{% for sub in c.subjects %}<li>{{ sub.subject }} · {{ sub.sessions }}× · Room {{ sub.rooms|join(', ') }}</li>{% endfor %}</ul>
+    <a class="btn small" href="{{ url_for('teacher.classes', division=c.division) }}">View class timetable</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty-state"><p>You have no lectures in this timetable.</p></div>{% endif %}
+{% endif %}
+{% endblock %}

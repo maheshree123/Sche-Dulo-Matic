@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot with context %}
+{% block title %}Change requests{% endblock %}
+{% block content %}
+<h1>Change requests</h1>
+<p class="muted">Teachers ask here for timetable changes. Approving a move updates the live timetable for everyone.</p>
+
+<h2>Waiting for your decision ({{ pending|length }})</h2>
+{% if not pending %}
+  <div class="card empty-state"><h3>All caught up</h3><p>No requests are waiting.</p></div>
+{% endif %}
+{% for r in pending %}
+<div class="req">
+  <div class="req-head"><div><strong>{{ r.who }}</strong> · {{ r.subject }} <span class="muted">({{ r.division }})</span></div>
+    <span class="muted small-text">{{ r.created_at[:16]|replace('T', ' ') }}</span></div>
+  <div class="move">
+    <span class="slot">{{ slot(r.from_day, r.from_slot) }}</span><span class="arrow">→</span>
+    {% if r.to_day %}<span class="slot">{{ slot(r.to_day, r.to_slot) }}</span>{% else %}<span class="slot">no specific slot</span>{% endif %}
+  </div>
+  <div class="quote">{{ r.reason }}</div>
+  {% if r.check %}
+    {% if r.check.ok %}<span class="check good">No clash: can be applied now (Room {{ r.check.room }})</span>
+    {% else %}<span class="check bad">Can't be applied: {{ r.check.reason }}</span>{% endif %}
+  {% else %}<span class="check note">General request. Approving only acknowledges it; the timetable is not changed automatically.</span>{% endif %}
+  <form method="post" action="{{ url_for('admin.request_decide', rid=r.id) }}" class="decide">
+    {{ csrf_input() }}
+    <div class="field" style="margin:0"><label for="note{{ r.id }}">Reply to the teacher (optional)</label>
+      <input id="note{{ r.id }}" name="note" type="text" maxlength="300" placeholder="e.g. Approved, please inform the class."></div>
+    <button class="btn ok" name="action" value="approve" {{ 'disabled' if r.check and not r.check.ok }}>{{ 'Approve' if r.to_day else 'Acknowledge' }}</button>
+    <button class="btn danger" name="action" value="reject">Decline</button>
+  </form>
+</div>
+{% endfor %}
+
+<h2 style="margin-top:1.8rem">History</h2>
+{% if history %}
+<div class="card"><div class="table-wrap"><table class="data">
+  <thead><tr><th>Teacher</th><th>Lecture</th><th>Change</th><th>Status</th><th>Your reply</th></tr></thead><tbody>
+  {% for r in history %}<tr>
+    <td>{{ r.who }}</td><td>{{ r.subject }}<div class="muted small-text">{{ r.division }}</div></td>
+    <td>{{ slot(r.from_day, r.from_slot) }} → {% if r.to_day %}{{ slot(r.to_day, r.to_slot) }}{% else %}–{% endif %}</td>
+    <td>{{ badge(r.status) }}<div class="muted small-text">{{ (r.decided_at or r.created_at)[:16]|replace('T', ' ') }}</div></td>
+    <td>{{ r.admin_note or '—' }}</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% else %}<p class="muted">Decided requests will appear here.</p>{% endif %}
+{% endblock %}

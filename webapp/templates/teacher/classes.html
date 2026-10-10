@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import timetable_grid with context %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+<h1>Class timetables</h1>
+{% if not meta %}
+  <div class="card empty-state"><h3>No timetable yet</h3><p>The college hasn't published a timetable.</p></div>
+{% else %}
+  <p class="muted">Pick a class to see its week. Lectures you teach are outlined.</p>
+  <div class="pills">
+    {% if mine_names %}<span class="label">Your classes</span>
+      {% for d in mine_names %}<a href="{{ url_for('teacher.classes', division=d) }}" class="{{ 'active' if d == division }}">{{ d }}</a>{% endfor %}{% endif %}
+    {% if others %}<span class="label">Other classes</span>
+      {% for d in others %}<a href="{{ url_for('teacher.classes', division=d) }}" class="{{ 'active' if d == division }}">{{ d }}</a>{% endfor %}{% endif %}
+  </div>
+  {% if info %}
+  <div class="card">
+    <div class="card-head"><h2>{{ division }}: what you teach</h2><span class="badge info">{{ info.sessions }} lectures / week</span></div>
+    <div class="table-wrap"><table class="data"><thead><tr><th>Subject</th><th>Sessions per week</th><th>Room</th></tr></thead><tbody>
+      {% for sub in info.subjects %}<tr><td><strong>{{ sub.subject }}</strong></td><td>{{ sub.sessions }}</td><td>{{ sub.rooms|join(', ') }}</td></tr>{% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+  <section class="card">
+    <div class="card-head"><h2>{{ division }} · weekly timetable</h2><span class="muted small-text">View only. To change one of your lectures, use “Request change” on <a href="{{ url_for('teacher.dashboard') }}">My timetable</a>.</span></div>
+    {{ timetable_grid(grid, second='teacher', mine=teacher) }}
+  </section>
+{% endif %}
+{% endblock %}

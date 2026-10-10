@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import timetable_grid with context %}
+{% block title %}Timetable{% endblock %}
+{% block content %}
+<div class="card-head"><h1>Timetable</h1>
+  {% if meta %}<span class="check {{ 'bad' if clashes else 'good' }}">{{ clashes|length ~ ' clash(es) found' if clashes else 'Integrity check: no clashes' }}</span>{% endif %}</div>
+
+{% if not meta %}
+  <div class="card empty-state"><h3>No timetable published</h3><p>Load the sample college or upload your own configuration below.</p></div>
+{% else %}
+  <div class="pills">
+    <span class="label">Classes</span>
+    {% for d in divisions %}<a href="{{ url_for('admin.timetable', division=d) }}" class="{{ 'active' if mode == 'division' and d == current }}">{{ d }}</a>{% endfor %}
+    <span class="label">Teachers</span>
+    {% for t in teachers %}<a href="{{ url_for('admin.timetable', teacher=t) }}" class="{{ 'active' if mode == 'teacher' and t == current }}">{{ t }}</a>{% endfor %}
+  </div>
+  <section class="card">
+    <div class="card-head"><h2>{{ current }}</h2><span class="muted small-text">Version {{ meta.version }} · {{ meta.published_at[:16]|replace('T', ' ') }}</span></div>
+    {{ timetable_grid(grid, second=('teacher' if mode == 'division' else 'division')) }}
+  </section>
+{% endif %}
+
+<section class="card">
+  <div class="card-head"><h2>Publish a timetable</h2><span class="muted small-text">Publishing replaces the live timetable. Pending change requests are closed.</span></div>
+  <div class="cols">
+    {% if meta %}
+    <form method="post" action="{{ url_for('admin.publish') }}">
+      {{ csrf_input() }}<input type="hidden" name="source" value="current">
+      <h3>Regenerate a different arrangement</h3>
+      <p class="muted small-text">Same classes, teachers and rooms, new random arrangement.</p>
+      <div class="inline-form"><div class="field"><label for="seed1">Seed (optional)</label><input id="seed1" name="seed" type="number" min="0" placeholder="auto"></div>
+        <button class="btn" type="submit">Regenerate</button></div>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('admin.publish') }}" enctype="multipart/form-data">
+      {{ csrf_input() }}<input type="hidden" name="source" value="upload">
+      <h3>Upload a configuration</h3>
+      <p class="muted small-text">A JSON file like <code>data/sample.json</code> (days, slots, rooms, classes, subjects, teachers).</p>
+      <div class="field"><input name="config" type="file" accept=".json,application/json" required></div>
+      <button class="btn" type="submit">Upload and publish</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.publish') }}">
+      {{ csrf_input() }}<input type="hidden" name="source" value="sample">
+      <h3>Load the sample college</h3>
+      <p class="muted small-text">3 classes, 10 teachers, 5 rooms. Good for trying things out.</p>
+      <button class="btn ghost" type="submit">Load sample</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

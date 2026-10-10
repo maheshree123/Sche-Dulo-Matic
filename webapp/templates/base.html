@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}{% endblock %} · Sche-Dulo-Matic</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}
+{% set ep = request.endpoint or '' %}
+<header class="nav">
+  <a class="brand" href="{{ url_for('auth.index') }}"><span class="logo"></span>Sche-Dulo-Matic</a>
+  <nav aria-label="Main">
+    {% if g.user and g.user['role'] == 'admin' %}
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if ep == 'admin.dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('admin.timetable') }}" class="{{ 'active' if ep == 'admin.timetable' }}">Timetable</a>
+      <a href="{{ url_for('admin.requests_page') }}" class="{{ 'active' if ep == 'admin.requests_page' }}">Requests
+        {% if nav_counts and nav_counts.requests %}<span class="count">{{ nav_counts.requests }}</span>{% endif %}</a>
+      <a href="{{ url_for('admin.accounts') }}" class="{{ 'active' if ep == 'admin.accounts' }}">Teachers
+        {% if nav_counts and nav_counts.accounts %}<span class="count">{{ nav_counts.accounts }}</span>{% endif %}</a>
+    {% elif g.user %}
+      <a href="{{ url_for('teacher.dashboard') }}" class="{{ 'active' if ep == 'teacher.dashboard' }}">My timetable</a>
+      <a href="{{ url_for('teacher.classes') }}" class="{{ 'active' if ep == 'teacher.classes' }}">Classes</a>
+      <a href="{{ url_for('teacher.requests_list') }}" class="{{ 'active' if ep.startswith('teacher.request') }}">My requests</a>
+    {% endif %}
+  </nav>
+  {% if g.user %}
+  <div class="user">
+    <span class="avatar" aria-hidden="true">{{ g.user['name'][:1]|upper }}</span>
+    <span class="who">{{ g.user['name'] }}</span>
+    <form method="post" action="{{ url_for('auth.logout') }}">{{ csrf_input() }}<button class="btn ghost small">Sign out</button></form>
+  </div>
+  {% endif %}
+</header>
+<main class="container">
+  {% from "_macros.html" import flashes %}{{ flashes() }}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">Sche-Dulo-Matic · clash-free timetables</footer>
+{% endblock %}
+</body>
+</html>

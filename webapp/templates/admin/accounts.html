@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge with context %}
+{% block title %}Teachers{% endblock %}
+{% block content %}
+<h1>Teacher accounts</h1>
+<p class="muted">Teachers sign up and choose their name from the timetable. Approve only people you recognise.</p>
+{% if not rows %}
+  <div class="card empty-state"><h3>No teacher accounts yet</h3><p>Teachers can sign up from the sign-in page.</p></div>
+{% else %}
+<div class="card"><div class="table-wrap"><table class="data">
+  <thead><tr><th>Name</th><th>Email</th><th>Timetable name</th><th>Status</th><th>Requested</th><th></th></tr></thead><tbody>
+  {% for a in rows %}<tr>
+    <td><strong>{{ a['name'] }}</strong></td><td>{{ a['email'] }}</td><td>{{ a['teacher_name'] }}</td>
+    <td>{{ badge(a['status']) }}</td><td class="muted small-text">{{ a['created_at'][:10] }}</td>
+    <td><form method="post" action="{{ url_for('admin.account_decide', uid=a['id']) }}" class="inline-form">{{ csrf_input() }}
+      {% if a['status'] != 'approved' %}<button class="btn ok small" name="action" value="approve">Approve</button>{% endif %}
+      {% if a['status'] == 'pending' %}<button class="btn danger small" name="action" value="reject">Reject</button>
+      {% elif a['status'] == 'approved' %}<button class="btn ghost small" name="action" value="reject">Revoke access</button>{% endif %}
+    </form></td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endif %}
+{% endblock %}

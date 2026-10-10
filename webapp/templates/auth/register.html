@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block body %}
+<div class="auth">
+  {% include "auth/_art.html" %}
+  <section class="auth-form"><div class="auth-box">
+    {% from "_macros.html" import flashes %}{{ flashes() }}
+    <h1>Create your account</h1>
+    <p class="muted">For teachers. The college office approves new accounts before you can sign in.</p>
+    {% if not names %}
+      <div class="flash info">No teacher names are available to claim right now. Either the timetable hasn't been published yet, or every name already has an account. Please contact the college office.</div>
+    {% else %}
+    <form method="post" novalidate>
+      {{ csrf_input() }}
+      <div class="field"><label for="name">Full name</label>
+        <input id="name" name="name" type="text" maxlength="80" value="{{ form.get('name', '') }}" autocomplete="name" required></div>
+      <div class="field"><label for="email">Email</label>
+        <input id="email" name="email" type="email" maxlength="120" value="{{ form.get('email', '') }}" autocomplete="email" required></div>
+      <div class="field"><label for="teacher_name">I am this teacher in the timetable</label>
+        <select id="teacher_name" name="teacher_name" required>
+          <option value="" disabled {{ 'selected' if not form.get('teacher_name') }}>Choose your name…</option>
+          {% for n in names %}<option value="{{ n }}" {{ 'selected' if form.get('teacher_name') == n }}>{{ n }}</option>{% endfor %}
+        </select>
+        <p class="hint">Only names that don't have an account yet are listed.</p></div>
+      <div class="field"><label for="password">Password</label>
+        <input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required>
+        <p class="hint">At least 8 characters.</p></div>
+      <div class="field"><label for="confirm">Repeat password</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" required></div>
+      <button class="btn block" type="submit">Request account</button>
+    </form>
+    {% endif %}
+    <p class="auth-foot">Already approved? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </div></section>
+</div>
+{% endblock %}

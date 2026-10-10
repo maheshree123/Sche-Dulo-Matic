@@ -1,0 +1,38 @@
+{
+  "days": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+  "slots": [1, 2, 3, 4, 5, 6],
+  "break_after": 3,
+  "rooms": [
+    {"number": "201", "kind": "classroom"},
+    {"number": "202", "kind": "classroom"},
+    {"number": "203", "kind": "classroom"},
+    {"number": "Lab-1", "kind": "lab"},
+    {"number": "Lab-2", "kind": "lab"}
+  ],
+  "divisions": [
+    {"name": "SE-A", "subjects": [
+      {"name": "Python",          "teacher": "Prof. Sharma", "lectures_per_week": 4},
+      {"name": "DBMS",            "teacher": "Prof. Iyer",   "lectures_per_week": 3},
+      {"name": "Maths",           "teacher": "Prof. Verma",   "lectures_per_week": 4},
+      {"name": "Data Structures", "teacher": "Prof. Rao",    "lectures_per_week": 3},
+      {"name": "Python Lab",      "teacher": "Prof. Patil",  "lectures_per_week": 1, "needs_lab": true},
+      {"name": "DBMS Lab",        "teacher": "Prof. Mehta",  "lectures_per_week": 1, "needs_lab": true}
+    ]},
+    {"name": "SE-B", "subjects": [
+      {"name": "Python",          "teacher": "Prof. Sharma", "lectures_per_week": 4},
+      {"name": "DBMS",            "teacher": "Prof. Iyer",   "lectures_per_week": 3},
+      {"name": "Maths",           "teacher": "Prof. Verma",   "lectures_per_week": 4},
+      {"name": "Data Structures", "teacher": "Prof. Rao",    "lectures_per_week": 3},
+      {"name": "Python Lab",      "teacher": "Prof. Patil",  "lectures_per_week": 1, "needs_lab": true},
+      {"name": "DBMS Lab",        "teacher": "Prof. Mehta",  "lectures_per_week": 1, "needs_lab": true}
+    ]},
+    {"name": "TE-A", "subjects": [
+      {"name": "Operating Systems",  "teacher": "Prof. Nair",      "lectures_per_week": 4},
+      {"name": "Computer Networks",  "teacher": "Prof. Joshi",     "lectures_per_week": 3},
+      {"name": "Artificial Intelligence", "teacher": "Prof. Deshmukh", "lectures_per_week": 3},
+      {"name": "Machine Learning",   "teacher": "Prof. Maheshree",     "lectures_per_week": 3},
+      {"name": "OS Lab",             "teacher": "Prof. Nair",      "lectures_per_week": 1, "needs_lab": true},
+      {"name": "ML Lab",             "teacher": "Prof. Maheshree",     "lectures_per_week": 1, "needs_lab": true}
+    ]}
+  ]
+}

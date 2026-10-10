@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot with context %}
+{% block title %}My requests{% endblock %}
+{% block content %}
+<div class="card-head"><h1>My change requests</h1><a class="btn ghost small" href="{{ url_for('teacher.dashboard') }}">Back to my timetable</a></div>
+{% if not rows %}
+  <div class="card empty-state"><h3>No requests yet</h3><p>Open your timetable and choose “Request change” on any lecture.</p></div>
+{% else %}
+<div class="card"><div class="table-wrap"><table class="data">
+  <thead><tr><th>Lecture</th><th>Change</th><th>Your reason</th><th>Status</th><th>College reply</th><th></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td><strong>{{ r['subject'] }}</strong><div class="muted small-text">{{ r['division'] }}</div></td>
+      <td>{{ slot(r['from_day'], r['from_slot']) }}<br><span class="muted">→</span>
+          {% if r['to_day'] %}{{ slot(r['to_day'], r['to_slot']) }}{% else %}<em>no specific slot</em>{% endif %}</td>
+      <td>{{ r['reason'] }}</td>
+      <td>{{ badge(r['status']) }}<div class="muted small-text">{{ (r['decided_at'] or r['created_at'])[:16]|replace('T', ' ') }}</div></td>
+      <td>{{ r['admin_note'] or '—' }}</td>
+      <td>{% if r['status'] == 'pending' %}
+        <form method="post" action="{{ url_for('teacher.request_cancel', rid=r['id']) }}">{{ csrf_input() }}<button class="btn ghost small">Cancel</button></form>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% macro flashes() %}
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ category }}" role="status">{{ message }}</div>
+  {% endfor %}
+{% endmacro %}
+
+{% macro badge(status) %}<span class="badge {{ status }}">{{ status }}</span>{% endmacro %}
+
+{% macro slot(day, n) %}{{ day }} · slot {{ n }}{% endmacro %}
+
+{# second = what to show under the subject: 'division' or 'teacher'. links = show "Request change". #}
+{% macro timetable_grid(g, second='division', mine=None, links=False) %}
+<div class="grid-wrap">
+<table class="tt">
+  <thead><tr><th class="slot-h">Slot</th>{% for d in g.days %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for row in g.rows %}
+    <tr>
+      <th class="slot-h" scope="row">{{ row.slot }}</th>
+      {% for cell in row.cells %}
+        {% if cell is none %}<td class="empty"></td>
+        {% elif cell.skip %}
+        {% else %}
+          {% set s = cell.session %}
+          <td class="lec{{ ' mine' if (mine and s.teacher == mine and second == 'teacher') }}" rowspan="{{ cell.rowspan }}" style="--h: {{ hue(s.subject) }}">
+            <strong>{{ s.subject }}</strong>
+            <span>{{ s.division if second == 'division' else s.teacher }} · Room {{ s.room }}</span>
+            {% if links and mine and s.teacher == mine %}
+              <a class="chip" href="{{ url_for('teacher.request_new', session=s.id) }}">Request change</a>
+            {% endif %}
+          </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    {% if row.break_after %}<tr class="break"><td colspan="{{ g.days|length + 1 }}">Lunch break</td></tr>{% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}

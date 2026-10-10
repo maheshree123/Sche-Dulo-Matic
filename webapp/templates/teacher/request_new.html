@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_macros.html" import slot with context %}
+{% block title %}Request a change{% endblock %}
+{% block content %}
+<h1>Request a timetable change</h1>
+<div class="card">
+  <p class="eyebrow">Current lecture</p>
+  <div class="move">
+    <span class="slot" style="--h:{{ hue(s.subject) }}">{{ s.subject }} · {{ s.division }}</span>
+    <span class="slot">{{ slot(s.day, s.start_slot) }}{% if s.duration > 1 %} ({{ s.duration }} periods){% endif %}</span>
+    <span class="slot">Room {{ s.room }}</span>
+  </div>
+</div>
+<form method="post" class="card" novalidate>
+  {{ csrf_input() }}
+  <input type="hidden" name="session" value="{{ s.id }}">
+  <h2>Where would you like it instead?</h2>
+  <p class="muted small-text">Only times with no clash for you, the class and a room are listed.</p>
+  {% if options %}
+  <div class="options" role="radiogroup" aria-label="New time">
+    {% for day, start, room in options %}
+      <label class="option"><input type="radio" name="target" value="{{ day }}|{{ start }}" {{ 'checked' if form.get('target') == day ~ '|' ~ start }}>
+        <span>{{ day }} · slot {{ start }}{% if s.duration > 1 %}–{{ start + s.duration - 1 }}{% endif %}<small>Room {{ room }}</small></span></label>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="flash info">No conflict-free alternative time exists for this lecture. You can still send the office a general request below.</div>
+  {% endif %}
+  <div class="options" style="margin-top:.6rem">
+    <label class="option"><input type="radio" name="target" value="none" {{ 'checked' if (form.get('target') == 'none' or not options) }}>
+      <span>No specific slot<small>Describe what you need in the reason</small></span></label>
+  </div>
+  <div class="field" style="margin-top:1.2rem"><label for="reason">Reason for the change</label>
+    <textarea id="reason" name="reason" maxlength="500" required placeholder="e.g. I have a department meeting at that time.">{{ form.get('reason', '') }}</textarea>
+    <p class="hint">The college office will see this message and approve or decline it.</p></div>
+  <div class="inline-form"><button class="btn" type="submit">Send request</button>
+    <a class="btn ghost" href="{{ url_for('teacher.dashboard') }}">Cancel</a></div>
+</form>
+{% endblock %}

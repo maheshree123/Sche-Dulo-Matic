@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot with context %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">College office</p>
+    <h1>Timetable dashboard</h1>
+    <p>{% if meta %}Timetable v{{ meta.version }} is live, published {{ meta.published_at[:16]|replace('T', ' ') }}.{% else %}No timetable has been published yet.{% endif %}</p>
+  </div>
+  <a class="btn ghost" style="color:#fff;border-color:rgba(255,255,255,.5)" href="{{ url_for('admin.timetable') }}">{{ 'Manage timetable' if meta else 'Publish a timetable' }}</a>
+</section>
+
+{% if meta %}
+<div class="stat-cards">
+  <div class="stat-card"><b>{{ n_lectures }}</b><span>lectures scheduled</span></div>
+  <div class="stat-card"><b>{{ n_divisions }}</b><span>classes</span></div>
+  <div class="stat-card"><b>{{ n_teachers }}</b><span>teachers</span></div>
+  <div class="stat-card {{ 'alert' if pending }}"><b>{{ pending|length }}</b><span>requests waiting</span></div>
+  <div class="stat-card {{ 'alert' if clashes }}"><b>{{ clashes|length }}</b><span>clashes found</span></div>
+</div>
+{% endif %}
+
+<div class="cols">
+  <section class="card">
+    <div class="card-head"><h2>Change requests</h2><a class="small-text" href="{{ url_for('admin.requests_page') }}">Open inbox</a></div>
+    {% if pending %}<ul class="list">
+      {% for r in pending %}<li><div><strong>{{ r['who'] }}</strong> wants to change <strong>{{ r['subject'] }}</strong> ({{ r['division'] }})
+        <div class="muted small-text">{{ slot(r['from_day'], r['from_slot']) }} → {% if r['to_day'] %}{{ slot(r['to_day'], r['to_slot']) }}{% else %}no specific slot{% endif %}</div></div>
+        <a class="btn small" href="{{ url_for('admin.requests_page') }}">Review</a></li>{% endfor %}
+    </ul>{% else %}<p class="muted">Nothing waiting. All caught up.</p>{% endif %}
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>New teacher accounts</h2><a class="small-text" href="{{ url_for('admin.accounts') }}">Manage</a></div>
+    {% if accounts %}<ul class="list">
+      {% for a in accounts %}<li><div><strong>{{ a['name'] }}</strong><div class="muted small-text">{{ a['email'] }} · claims {{ a['teacher_name'] }}</div></div>
+        <a class="btn small" href="{{ url_for('admin.accounts') }}">Review</a></li>{% endfor %}
+    </ul>{% else %}<p class="muted">No accounts are waiting for approval.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}
